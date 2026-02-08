@@ -10,18 +10,18 @@ export default function Navigation() {
   ]
 
   return (
-    <nav className="bg-white border-b border-gray-200">
+    <nav className="bg-white/90 backdrop-blur-lg border-b border-blue-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex overflow-x-auto gap-2 py-2">
+        <div className="flex overflow-x-auto gap-2 py-3">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
+                `flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-gradient-to-r from-blue-400 to-cyan-400 text-white shadow-soft'
+                    : 'text-gray-600 hover:bg-blue-50'
                 }`
               }
             >
