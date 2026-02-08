@@ -4,6 +4,7 @@ import StressGauge from '../components/dashboard/StressGauge'
 import StatusToggle from '../components/dashboard/StatusToggle'
 import MetricsCard from '../components/dashboard/MetricsCard'
 import QuickActions from '../components/dashboard/QuickActions'
+import HistoryChart from '../components/history/HistoryChart'
 
 export default function DashboardPage() {
   const { currentData, currentMode, history } = useStressData()
@@ -31,7 +32,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Demo Toggle with Stats */}
-        <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
+        <div className="bg-amber-50/80 backdrop-blur-sm border-2 border-amber-300 rounded-2xl p-4 shadow-soft">
           <div className="flex items-start justify-between gap-4 mb-3">
             <div>
               <p className="text-sm text-amber-800 font-medium mb-1">
@@ -63,7 +64,7 @@ export default function DashboardPage() {
 
         {/* Alert Banner */}
         {currentMode === 'stressed' && (
-          <div className="bg-red-50 border-l-4 border-red-500 rounded-xl p-4 animate-slide-up">
+          <div className="bg-red-50/90 backdrop-blur-sm border-l-4 border-red-500 rounded-xl p-4 animate-slide-up shadow-soft">
             <div className="flex items-center gap-3">
               <span className="text-2xl">⚠️</span>
               <div>
@@ -75,7 +76,7 @@ export default function DashboardPage() {
         )}
 
         {/* Today's Summary */}
-        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-5 border border-blue-200">
+        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-5 border border-blue-200 shadow-soft">
           <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
             <span className="text-xl">📊</span>
             สรุปวันนี้
@@ -122,7 +123,7 @@ export default function DashboardPage() {
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Stress Gauge */}
-          <div className="bg-white rounded-3xl shadow-lg p-6 lg:col-span-1">
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-soft-lg p-6 lg:col-span-1 border border-blue-50">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">ระดับความเครียดปัจจุบัน</h2>
             <StressGauge value={currentData.stressLevel} />
           </div>
@@ -136,71 +137,85 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">เมนูด่วน</h2>
-          <QuickActions />
-        </div>
-
-        {/* Weekly Trend Preview */}
-        <div className="bg-white rounded-xl shadow-md p-6">
+        {/* Weekly Trend Chart - Recharts */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-soft-lg p-6 border border-blue-50">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">แนวโน้ม 7 วันล่าสุด</h3>
-            <a href="/history" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-              ดูทั้งหมด →
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <span className="text-xl">📈</span>
+              กราฟแนวโน้ม 7 วัน
+            </h3>
+            <a 
+              href="/history" 
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 hover:gap-2 transition-all"
+            >
+              ดูทั้งหมด 
+              <span>→</span>
             </a>
           </div>
           
-          {/* Simple Bar Chart */}
-          <div className="flex items-end justify-between h-32 gap-2">
-            {Array.from({ length: 7 }).map((_, index) => {
-              const dayData = history.filter(h => {
-                const date = new Date()
-                date.setDate(date.getDate() - (6 - index))
-                const targetDate = date.toDateString()
-                return new Date(h.timestamp).toDateString() === targetDate
-              })
-              
-              const avgStress = dayData.length > 0
-                ? dayData.reduce((sum, h) => sum + h.stressLevel, 0) / dayData.length
-                : 0
-              
-              const height = `${avgStress}%`
-              const color = avgStress < 30 ? 'bg-green-500' : avgStress < 60 ? 'bg-yellow-500' : avgStress < 80 ? 'bg-orange-500' : 'bg-red-500'
-              
-              return (
-                <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full flex items-end justify-center h-24">
-                    <div 
-                      className={`w-full ${color} rounded-t transition-all duration-500 hover:opacity-80`}
-                      style={{ height: avgStress > 0 ? height : '4%', minHeight: '4px' }}
-                    />
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'][new Date(new Date().setDate(new Date().getDate() - (6 - index))).getDay()]}
-                  </div>
-                </div>
-              )
-            })}
+          <HistoryChart data={history} type="area" />
+          
+          <div className="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-blue-100">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-blue-400 rounded"></div>
+              <span className="text-xs text-gray-600">ระดับเครียด</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-2xl">⚡</span>
+            เมนูด่วน
+          </h2>
+          <QuickActions />
+        </div>
+
+        {/* Additional Insights */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Best Time */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200 shadow-soft">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">✨</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">ช่วงเวลาที่ดีที่สุด</h3>
+                <p className="text-sm text-gray-600">ความเครียดต่ำสุด</p>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-green-600">09:00 - 12:00</div>
+            <p className="text-sm text-gray-600 mt-2">
+              คุณมักมีระดับความเครียดต่ำในช่วงเช้า
+            </p>
           </div>
 
-          <div className="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded"></div>
-              <span className="text-xs text-gray-600">ปกติ</span>
+          {/* Recommendations */}
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200 shadow-soft">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">💡</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">คำแนะนำ</h3>
+                <p className="text-sm text-gray-600">สำหรับคุณ</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-              <span className="text-xs text-gray-600">เล็กน้อย</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-orange-500 rounded"></div>
-              <span className="text-xs text-gray-600">ปานกลาง</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded"></div>
-              <span className="text-xs text-gray-600">สูง</span>
-            </div>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li className="flex items-start gap-2">
+                <span className="text-green-500 mt-0.5">✓</span>
+                <span>ออกกำลังกายอย่างน้อย 30 นาที/วัน</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-500 mt-0.5">✓</span>
+                <span>ฝึกการหายใจเมื่อรู้สึกเครียด</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-500 mt-0.5">✓</span>
+                <span>นอนหลับให้เพียงพอ 7-8 ชั่วโมง</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
