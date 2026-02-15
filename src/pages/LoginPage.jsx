@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import Button from '../components/common/Button'
+import logo from '../assets/logo.png'  // import โลโก้
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -31,13 +32,18 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-cyan-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
+        {/* Logo - ใช้รูปภาพเต็มๆ */}
         <div className="text-center mb-8 animate-fade-in">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-soft-lg animate-bounce-slow">
-            <span className="text-5xl">💙</span>
+          <div className="w-28 h-28 mx-auto mb-4 shadow-soft-lg rounded-2xl bg-white/80 backdrop-blur-sm p-3 animate-bounce-slow">
+            <img 
+              src={logo} 
+              alt="PulseOne Logo"
+              className="w-full h-full object-contain rounded-xl"
+            />
           </div>
+          
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent mb-2">
-            StressWatch
+            PulseOne
           </h1>
           <p className="text-gray-600">ระบบติดตามและจัดการความเครียด</p>
         </div>

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import logo from '../../assets/logo.png'
 
 export default function Header() {
   const { user, logout } = useAuth()
@@ -14,18 +15,26 @@ export default function Header() {
     <header className="bg-white/95 backdrop-blur-lg border-b border-blue-100 sticky top-0 z-40 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-xl flex items-center justify-center shadow-soft">
-              <span className="text-2xl">💙</span>
-            </div>
+          {/* โลโก้เต็มๆ + ชื่อแอป */}
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-blue-200 rounded-lg p-1 hover:shadow-soft-lg transition-all"
+          >
+            {/* โลโก้เต็มๆ ไม่มี bg สี */}
+            <img 
+              src={logo} 
+              alt="PulseOne Logo"
+              className="w-11 h-11 rounded-xl object-contain shadow-soft-lg hover:shadow-soft-lg transition-all"
+            />
+            
             <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-              StressWatch
+              PulseOne
             </span>
-          </div>
+          </button>
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 hidden sm:inline">
-              สวัสดี, {user?.name || 'User'}
+              สวัสดี, {user?.name || 'ผู้ใช้งาน'}
             </span>
             <button
               onClick={handleLogout}
