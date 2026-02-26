@@ -9,22 +9,22 @@ import HistoryChart from '../components/history/HistoryChart'
 export default function DashboardPage() {
   const { currentData, currentMode, history } = useStressData()
 
-  // คำนวณสถิติจากประวัติ
   const stats = {
-    totalRecords: history.length,
-    normalCount: history.filter(h => h.status === 'normal').length,
+    totalRecords:  history.length,
+    normalCount:   history.filter(h => h.status === 'normal').length,
     stressedCount: history.filter(h => h.status === 'stressed').length,
-    avgStressLevel: Math.round(
-      history.reduce((sum, h) => sum + h.stressLevel, 0) / history.length
-    ),
-    highestStress: Math.round(
-      Math.max(...history.map(h => h.stressLevel))
-    ),
+    avgStressLevel: history.length > 0
+      ? Math.round(history.reduce((sum, h) => sum + h.stressLevel, 0) / history.length)
+      : 0,
+    highestStress: history.length > 0
+      ? Math.round(Math.max(...history.map(h => h.stressLevel)))
+      : 0,
   }
 
   return (
     <AppLayout>
       <div className="space-y-6 animate-fade-in">
+
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">ภาพรวมความเครียด</h1>
@@ -39,9 +39,10 @@ export default function DashboardPage() {
                 🎯 โหมดสาธิต: สลับสถานะเพื่อดูความแตกต่าง
               </p>
               <p className="text-xs text-amber-700">
-                มีสถิติประวัติ 7 วันย้อนหลัง: {stats.normalCount} ครั้งปกติ, {stats.stressedCount} ครั้งเครียด
+                มีสถิติประวัติวันนี้: {stats.normalCount} ครั้งปกติ, {stats.stressedCount} ครั้งเครียด
               </p>
             </div>
+            {/* ✅ StatusToggle เรียก toggleMode จาก hook เองโดยตรง ไม่ต้องส่ง props */}
             <StatusToggle />
           </div>
 
@@ -84,35 +85,20 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             <div>
               <div className="text-gray-600">บันทึกทั้งหมด</div>
-              <div className="text-xl font-bold text-blue-600">
-                {history.filter(h => {
-                  const today = new Date().toDateString()
-                  return new Date(h.timestamp).toDateString() === today
-                }).length}
-              </div>
+              <div className="text-xl font-bold text-blue-600">{stats.totalRecords}</div>
             </div>
             <div>
               <div className="text-gray-600">ปกติ</div>
-              <div className="text-xl font-bold text-green-600">
-                {history.filter(h => {
-                  const today = new Date().toDateString()
-                  return new Date(h.timestamp).toDateString() === today && h.status === 'normal'
-                }).length}
-              </div>
+              <div className="text-xl font-bold text-green-600">{stats.normalCount}</div>
             </div>
             <div>
               <div className="text-gray-600">เครียด</div>
-              <div className="text-xl font-bold text-red-600">
-                {history.filter(h => {
-                  const today = new Date().toDateString()
-                  return new Date(h.timestamp).toDateString() === today && h.status === 'stressed'
-                }).length}
-              </div>
+              <div className="text-xl font-bold text-red-600">{stats.stressedCount}</div>
             </div>
             <div>
               <div className="text-gray-600">อัตราความเครียด</div>
               <div className="text-xl font-bold text-amber-600">
-                {stats.totalRecords > 0 
+                {stats.totalRecords > 0
                   ? Math.round((stats.stressedCount / stats.totalRecords) * 100)
                   : 0}%
               </div>
@@ -130,34 +116,40 @@ export default function DashboardPage() {
 
           {/* Metrics Grid */}
           <div className="grid grid-cols-2 gap-4">
-            <MetricsCard type="hr" value={currentData.hr} status={currentMode} />
+            <MetricsCard type="hr"  value={currentData.hr}  status={currentMode} />
             <MetricsCard type="hrv" value={currentData.hrv} status={currentMode} />
             <MetricsCard type="rhr" value={currentData.rhr} status={currentMode} />
             <MetricsCard type="scl" value={currentData.scl} status={currentMode} />
           </div>
         </div>
 
-        {/* Weekly Trend Chart - Recharts */}
+        {/* Today Trend Chart */}
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-soft-lg p-6 border border-blue-50">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <span className="text-xl">📈</span>
-              กราฟแนวโน้ม 7 วัน
+              กราฟแนวโน้มวันนี้
             </h3>
-            <a 
-              href="/history" 
+            <a
+              href="/history"
               className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 hover:gap-2 transition-all"
             >
-              ดูทั้งหมด 
-              <span>→</span>
+              ดูทั้งหมด <span>→</span>
             </a>
           </div>
-          
-          <HistoryChart data={history} type="area" />
-          
+
+          {history.length > 0
+            ? <HistoryChart data={history} type="area" />
+            : (
+              <div className="h-[300px] flex items-center justify-center text-gray-400">
+                <p>กำลังโหลดข้อมูล...</p>
+              </div>
+            )
+          }
+
           <div className="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-blue-100">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-400 rounded"></div>
+              <div className="w-3 h-3 bg-blue-400 rounded" />
               <span className="text-xs text-gray-600">ระดับเครียด</span>
             </div>
           </div>
@@ -174,6 +166,7 @@ export default function DashboardPage() {
 
         {/* Additional Insights */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
           {/* Best Time */}
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200 shadow-soft">
             <div className="flex items-center gap-3 mb-3">
@@ -217,6 +210,7 @@ export default function DashboardPage() {
               </li>
             </ul>
           </div>
+
         </div>
       </div>
     </AppLayout>

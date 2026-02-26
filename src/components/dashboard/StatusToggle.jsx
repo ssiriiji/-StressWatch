@@ -5,10 +5,12 @@ export default function StatusToggle() {
 
   return (
     <div className="flex items-center justify-center gap-4 p-4 bg-white rounded-xl shadow-md">
-      <span className={`text-sm font-medium ${currentMode === 'normal' ? 'text-blue-600' : 'text-gray-500'}`}>
+      <span className={`text-sm font-medium ${
+        currentMode === 'normal' ? 'text-blue-600' : 'text-gray-500'
+      }`}>
         ปกติ
       </span>
-      
+
       <button
         onClick={toggleMode}
         className={`relative w-16 h-8 rounded-full transition-colors duration-300 ${
@@ -21,8 +23,10 @@ export default function StatusToggle() {
           }`}
         />
       </button>
-      
-      <span className={`text-sm font-medium ${currentMode === 'stressed' ? 'text-red-600' : 'text-gray-500'}`}>
+
+      <span className={`text-sm font-medium ${
+        currentMode === 'stressed' ? 'text-red-600' : 'text-gray-500'
+      }`}>
         เครียด
       </span>
     </div>

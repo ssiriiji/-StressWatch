@@ -6,12 +6,23 @@ import HistoryChart from '../components/history/HistoryChart'
 
 export default function HistoryPage() {
   const { history } = useStressData()
-  const [filter, setFilter] = useState('all') // 'all', 'normal', 'stressed'
-  const [chartType, setChartType] = useState('line') // 'line', 'area'
+  const [filter, setFilter] = useState('all')
+  const [chartType, setChartType] = useState('line')
 
-  const filteredHistory = filter === 'all' 
-    ? history 
-    : history.filter(item => item.status === filter)
+  // ✅ กรองเฉพาะข้อมูลวันนี้
+  const today = new Date()
+  const todayHistory = history.filter(item => {
+    const itemDate = new Date(item.timestamp)
+    return (
+      itemDate.getFullYear() === today.getFullYear() &&
+      itemDate.getMonth() === today.getMonth() &&
+      itemDate.getDate() === today.getDate()
+    )
+  })
+
+  const filteredHistory = filter === 'all'
+    ? todayHistory
+    : todayHistory.filter(item => item.status === filter)
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp)
@@ -30,10 +41,11 @@ export default function HistoryPage() {
     })
   }
 
+  // ✅ stats คำนวณจาก todayHistory
   const stats = {
-    total: history.length,
-    normal: history.filter(h => h.status === 'normal').length,
-    stressed: history.filter(h => h.status === 'stressed').length,
+    total: todayHistory.length,
+    normal: todayHistory.filter(h => h.status === 'normal').length,
+    stressed: todayHistory.filter(h => h.status === 'stressed').length,
   }
 
   return (
@@ -42,7 +54,8 @@ export default function HistoryPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">ประวัติความเครียด</h1>
-          <p className="text-gray-600">ข้อมูลการวัดความเครียดย้อนหลัง 7 วัน</p>
+          {/* ✅ เปลี่ยน subtitle */}
+          <p className="text-gray-600">ข้อมูลการวัดความเครียดวันนี้ (24 ชั่วโมง)</p>
         </div>
 
         {/* Statistics */}
@@ -52,24 +65,39 @@ export default function HistoryPage() {
             <div className="text-3xl font-bold">{stats.total}</div>
             <div className="text-sm opacity-90">ครั้ง</div>
           </div>
-          
+
           <div className="bg-gradient-to-br from-green-400 to-emerald-400 rounded-2xl p-6 text-white shadow-soft">
             <div className="text-sm opacity-90 mb-1">ปกติ</div>
             <div className="text-3xl font-bold">{stats.normal}</div>
-            <div className="text-sm opacity-90">{Math.round((stats.normal / stats.total) * 100)}%</div>
+            <div className="text-sm opacity-90">
+              {stats.total > 0 ? Math.round((stats.normal / stats.total) * 100) : 0}%
+            </div>
           </div>
-          
+
           <div className="bg-gradient-to-br from-red-400 to-orange-400 rounded-2xl p-6 text-white shadow-soft">
             <div className="text-sm opacity-90 mb-1">เครียด</div>
             <div className="text-3xl font-bold">{stats.stressed}</div>
-            <div className="text-sm opacity-90">{Math.round((stats.stressed / stats.total) * 100)}%</div>
+            <div className="text-sm opacity-90">
+              {stats.total > 0 ? Math.round((stats.stressed / stats.total) * 100) : 0}%
+            </div>
           </div>
         </div>
 
         {/* Chart Section */}
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-soft p-6 border border-blue-50">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">กราฟแสดงแนวโน้ม</h2>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">กราฟแสดงแนวโน้ม</h2>
+              {/* ✅ แสดงวันที่ของวันนี้ใต้หัวข้อกราฟ */}
+              <p className="text-sm text-gray-500 mt-0.5">
+                {today.toLocaleDateString('th-TH', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </p>
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setChartType('line')}
@@ -93,7 +121,8 @@ export default function HistoryPage() {
               </button>
             </div>
           </div>
-          <HistoryChart data={history} type={chartType} />
+          {/* ✅ ส่ง todayHistory แทน history */}
+          <HistoryChart data={todayHistory} type={chartType} timeRange="day" />
         </div>
 
         {/* Filter */}
@@ -102,8 +131,8 @@ export default function HistoryPage() {
             <button
               onClick={() => setFilter('all')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === 'all' 
-                  ? 'bg-gradient-to-r from-blue-400 to-cyan-400 text-white shadow-soft' 
+                filter === 'all'
+                  ? 'bg-gradient-to-r from-blue-400 to-cyan-400 text-white shadow-soft'
                   : 'bg-gray-100 text-gray-600 hover:bg-blue-50'
               }`}
             >
@@ -112,8 +141,8 @@ export default function HistoryPage() {
             <button
               onClick={() => setFilter('normal')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === 'normal' 
-                  ? 'bg-green-500 text-white' 
+                filter === 'normal'
+                  ? 'bg-green-500 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-green-50'
               }`}
             >
@@ -122,8 +151,8 @@ export default function HistoryPage() {
             <button
               onClick={() => setFilter('stressed')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === 'stressed' 
-                  ? 'bg-red-500 text-white' 
+                filter === 'stressed'
+                  ? 'bg-red-500 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-red-50'
               }`}
             >
